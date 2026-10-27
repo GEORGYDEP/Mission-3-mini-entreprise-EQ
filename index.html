@@ -1921,6 +1921,12 @@ const puMarche = () => r2(ref(iStrat()) / (1 + tvaV()));
 const puMaxClient = () => r2(puMarche() * 0.95);                           // ce qu'il accepte de payer, par unité HT
 /** V2 : une vraie facture. Brut = quantité × prix unitaire ; remise = brut × taux ; HT = brut − remise ; TVA = HT × taux ; TTC = HT + TVA. */
 const montants = (q, pu, remise) => { const brut = r2(q * pu), rem = r2(brut * remise / 100), ht = r2(brut - rem), tva = r2(ht * tvaV()); return { q, pu, remisePct:remise, brut, remise:rem, ht, tva, ttc:r2(ht + tva) }; };
+/** V2 : HT de ventes encaissées TTC, comme une caisse : HT du total = TTC ÷ (1 + taux), arrondi au centime ; chaque ligne reçoit
+ *  son HT arrondi vers le bas, puis les centimes qui manquent vont aux plus grands restes : les lignes font exactement le total. */
+const htDeTTC = (ttcs, t) => { const exacts = ttcs.map(x => Math.round(x * 100) / (1 + t)), cents = exacts.map(Math.floor);
+  const manque = Math.round(ttcs.reduce((s, x) => s + Math.round(x * 100), 0) / (1 + t)) - cents.reduce((s, c) => s + c, 0);
+  exacts.map((x, k) => [x - cents[k], k]).sort((a, b) => b[0] - a[0]).slice(0, Math.max(0, manque)).forEach(([, k]) => { cents[k] += 1; });
+  return cents.map(c => c / 100); };
 const devisMontants = () => montants(qteClient(), S.devis.pu != null ? S.devis.pu : puMarche(), S.devis.remise);
 const devisHT = () => devisMontants().ht;
 const devisNet = () => r2(devisHT() / qteClient());                       // prix unitaire net moyen
@@ -1959,8 +1965,9 @@ function simulation(){
   for (let w = 1; w <= 4; w++){
     const reserve = qCl && (w === 2 || w === 3) ? qCl : 0;               // articles mis de côté pour le client, jusqu'à sa livraison
     const ventes = [0,1,2].map(i => { const dem = demande(i, w), q = Math.min(Math.max(0, stock[i] - (i === is ? reserve : 0)), dem); stock[i] -= q;
-      const pu = pvSemaine(i, w); return { i, q, pu, puHT:r2(pu / (1 + tC)), demande:dem, manque:dem - q }; });
-    const caHT = r2(ventes.reduce((s, v) => s + v.q * v.puHT, 0)), caTTC = r2(ventes.reduce((s, v) => s + v.q * v.pu, 0)), cg = r2(ventes.reduce((s, v) => s + v.q * pa(v.i), 0));
+      const pu = pvSemaine(i, w); return { i, q, pu, ttc:r2(q * pu), demande:dem, manque:dem - q }; });
+    htDeTTC(ventes.map(v => v.ttc), tC).forEach((h, k) => { ventes[k].ht = h; });   // TVA sur le total encaissé (et non article par article : HT + TVA = TTC au centime)
+    const caHT = r2(ventes.reduce((s, v) => s + v.ht, 0)), caTTC = r2(ventes.reduce((s, v) => s + v.ttc, 0)), cg = r2(ventes.reduce((s, v) => s + v.q * pa(v.i), 0));
     const lignes = [{ e:"🛍️", t:"Ventes en boutique", s:`${ventes.reduce((s, v) => s + v.q, 0)} articles · ${euro(caHT)} HT + TVA ${pctTVA()}\u00a0%`, m:caTTC }];
     ventesHT = r2(ventesHT + caHT); tvaColl = r2(tvaColl + r2(caTTC - caHT)); cogs = r2(cogs + cg);
     if (w === 1){
@@ -2167,7 +2174,7 @@ function ledger(w){ const s = SIM().semaines[w - 1];
   return `<div class="ledger">${s.lignes.map(l => `<div class="ll"><span class="e">${l.e}</span><span>${esc(l.t)}<small>${esc(l.s)}</small></span><span class="m ${l.m > 0 ? "pos" : l.m < 0 ? "neg" : ""}">${l.m > 0 ? "+ " : l.m < 0 ? "− " : ""}${l.m ? euro(Math.abs(l.m)) : "0\u00a0€"}</span></div>`).join("")}
     <div class="lt"><span>Banque : ${euro(s.debut)} → ${euro(s.fin)}</span><span class="${s.flux >= 0 ? "pos" : "neg"}">${s.flux >= 0 ? "+" : "−"} ${euro(Math.abs(s.flux))}</span></div></div>`; }
 function ventesTable(w){ const s = SIM().semaines[w - 1], manques = s.ventes.filter(v => v.manque > 0);
-  return `<table class="sales"><thead><tr><th>Article</th><th class="n">Vendus</th><th class="n">Prix TTC</th><th class="n">CA HT</th><th class="n">Stock restant</th></tr></thead><tbody>${s.ventes.map(v => `<tr><td>${arts()[v.i].emoji} ${esc(arts()[v.i].nom)}${s.promo ? ' <span class="tag" style="font-size:11px;padding:2px 7px;margin:0;color:var(--pink)">promo −15\u00a0%</span>' : ""}</td><td class="n">${v.q}</td><td class="n">${euro(v.pu)}</td><td class="n">${euro(r2(v.q * v.puHT))}</td><td class="n">${s.stock[v.i]}${s.stock[v.i] === 0 ? " ⚠" : ""}</td></tr>`).join("")}<tr class="tot"><td>Total de la semaine</td><td class="n">${s.ventes.reduce((t, v) => t + v.q, 0)}</td><td></td><td class="n">${euro(s.caHT)}</td><td></td></tr></tbody></table>
+  return `<table class="sales"><thead><tr><th>Article</th><th class="n">Vendus</th><th class="n">Prix TTC</th><th class="n">CA HT</th><th class="n">Stock restant</th></tr></thead><tbody>${s.ventes.map(v => `<tr><td>${arts()[v.i].emoji} ${esc(arts()[v.i].nom)}${s.promo ? ' <span class="tag" style="font-size:11px;padding:2px 7px;margin:0;color:var(--pink)">promo −15\u00a0%</span>' : ""}</td><td class="n">${v.q}</td><td class="n">${euro(v.pu)}</td><td class="n">${euro(v.ht)}</td><td class="n">${s.stock[v.i]}${s.stock[v.i] === 0 ? " ⚠" : ""}</td></tr>`).join("")}<tr class="tot"><td>Total de la semaine</td><td class="n">${s.ventes.reduce((t, v) => t + v.q, 0)}</td><td></td><td class="n">${euro(s.caHT)}</td><td></td></tr></tbody></table>
     ${manques.length ? `<div class="help" style="color:var(--amber)">⚠ Rupture de stock : ${manques.map(v => `${v.manque} client${v.manque > 1 ? "s" : ""} sans ${esc(arts()[v.i].nom.toLowerCase())}`).join(", ")} : autant de ventes perdues.</div>` : ""}
     ${w === 4 && s.perdus.some(q => q > 0) ? `<div class="help" style="color:var(--amber)">🗑️ Fin du mois : ${s.perdus.map((q, i) => q ? `${q} ${esc(arts()[i].unite)}${q > 1 ? "s" : ""} (${esc(arts()[i].nom.toLowerCase())})` : "").filter(Boolean).join(", ")} invendus abîmés, jetés (${Math.round(PERTE_FRAIS * 100)}\u00a0% des invendus frais). Le stock restant en tient compte.</div>` : ""}`; }
 const weekHead = (w, titre, lead) => `<div class="week-h"><div class="wn">S${w}</div><div><div class="kick" style="margin:0">Semaine ${w} sur 4</div><h2 class="title" style="margin:0">${titre}</h2></div></div>${lead ? `<p class="lead">${lead}</p>` : ""}`;
