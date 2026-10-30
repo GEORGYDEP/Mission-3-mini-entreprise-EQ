@@ -527,6 +527,21 @@ img.photo-r{display:block; width:100%; height:100%; object-fit:cover; user-selec
 .cls-acces-side{margin-top:10px}
 .cls-acces-side .cls-bouton{width:100%; justify-content:center; padding:9px 12px; font-size:14px}
 .cls-doc.cls-bord-marque{border:2px solid var(--brand, #e935c5)}
+/* ─── V4.1 : le code PIN avant les virements de la semaine (comme au paiement de la mission 2) ─── */
+.pin-liste{width:100%; max-width:560px; border-collapse:collapse; margin:4px 0 0; font-size:14.5px}
+.pin-liste td{padding:6px 8px; border-bottom:1px solid rgba(255,255,255,.12)}
+.pin-liste td.n{text-align:right; white-space:nowrap; font-family:var(--mono, monospace)}
+.pin-liste tr.tot td{font-weight:800; border-bottom:none}
+.pin-zone{margin:14px 0 0; padding:14px 16px; border-radius:14px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05)}
+.pin-zone.ok{border-color:rgba(52,211,153,.7); background:rgba(52,211,153,.10)}
+.pin-zone.faux{border-color:rgba(251,113,133,.8); background:rgba(251,113,133,.10)}
+.pin-titre{display:block; font-size:15px; margin-bottom:10px}
+.pin-champ{display:block; width:190px; max-width:100%; padding:10px 14px; border-radius:12px; border:2px solid rgba(255,255,255,.3); background:#0d1426; color:#fff; font:700 28px var(--mono, monospace); letter-spacing:.45em; text-align:center; -webkit-text-security:disc}
+.pin-champ:focus{outline:none; border-color:#f5c451; box-shadow:0 0 0 3px rgba(245,196,81,.25)}
+.pin-aide{margin:10px 0 0; font-size:14.5px; color:var(--muted, #a3afc4)}
+.pin-aide b{font:800 18px var(--mono, monospace); color:#f5c451; letter-spacing:.12em}
+.pin-etat{margin:6px 0 0; min-height:1.3em; font-size:14px; font-weight:600}
+.pin-zone.ok .pin-etat{color:#34d399} .pin-zone.faux .pin-etat{color:#fb7185}
 /* ─── V4 : le dossier imprimé (comme aux 3P) : une feuille recto verso au plus, aucun document coupé, des couleurs de papier ─── */
 @media print{
   @page{size:A4; margin:9mm}
@@ -1515,6 +1530,65 @@ body{background:radial-gradient(130% 85% at 50% -10%, #241a52 0%, #120d2c 45%, #
   .m3-fc-classeur, .m3-fc-classeur .cpt-classeur{width:120px}
 }
 @media (prefers-reduced-motion:reduce){ .m3-fc-feuille{transition:none} }
+/* ═══ V4.1 (30/10/2026, demande du professeur : « les mêmes modifications que la mission 2 ») : camion qui attend les films,
+   le temps qui passe (éphéméride, comme aux 3P), le client qui tape son code PIN, films joués en entier même sur un PC « sans animations » ═══ */
+/* le camion du grossiste attend, garé hors de la rue, la fin des films (publicité, temps qui passe) */
+.m3-livraison.attend .kit-camion, .m3-livraison.attend .kit-camion *{animation-play-state:paused !important}
+.m3-livraison.attend .kit-camion{transform:translateX(-110vw) !important}            /* garé hors de la rue, même si l'animation est coupée */
+/* l'éphéméride : une page arrachée par jour */
+.m3-sc-cal{flex-direction:column; align-items:center; gap:16px}
+.m3-eph-titre{font:800 22px var(--doc); color:#fff; letter-spacing:.02em}
+.m3-eph{position:relative; width:250px; height:272px; margin-top:18px}
+.m3-eph-anneau{position:absolute; top:-12px; z-index:5; width:14px; height:30px; border-radius:8px; background:linear-gradient(90deg,#8c8fa3,#f3f4f8 45%,#7c7f93); box-shadow:0 2px 3px rgba(0,0,0,.4)}
+.m3-eph-anneau:first-child{left:52px} .m3-eph-anneau:nth-child(2){right:52px}
+.m3-eph-pile{position:absolute; inset:0; border-radius:14px; background:#e9e4d8; box-shadow:0 26px 60px rgba(0,0,0,.6), 0 4px 0 #d4cdbd, 0 8px 0 #c8c0ae}
+.m3-eph-page{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; border-radius:14px; overflow:hidden; background:#fffdf8; transform-origin:50% 0}
+.m3-eph-mois{display:block; width:100%; padding:16px 10px 10px; text-align:center; background:linear-gradient(180deg,#e5484d,#bf2c33); color:#fff; font:800 16px var(--doc); text-transform:capitalize; letter-spacing:.04em}
+.m3-eph-jour{font:900 106px/1 var(--doc); color:#1d1f33; margin-top:10px; font-variant-numeric:tabular-nums}
+.m3-eph-nom{font:600 20px Georgia,serif; font-style:italic; color:#3b3f58; text-transform:capitalize}
+.m3-eph-note{position:absolute; bottom:10px; left:10px; right:10px; text-align:center; font:700 12px var(--doc); color:#6b6f88}
+.m3-eph-page.we .m3-eph-jour{color:#7c86b8}
+.m3-eph-page.ferie .m3-eph-jour, .m3-eph-page.ferie .m3-eph-note{color:#d1343b}
+.m3-eph-page.arrache{z-index:3; animation:m3-eph-arrache .46s cubic-bezier(.5,0,.8,.6) forwards}
+@keyframes m3-eph-arrache{to{transform:translate(70px,-120px) rotate(24deg) rotateX(50deg); opacity:0}}
+.m3-eph-fin{margin:0; font:600 20px var(--doc); color:#fff; text-align:center; opacity:0; transform:translateY(8px); transition:opacity .4s, transform .4s}
+.m3-sc-cal.fini .m3-eph-fin{opacity:1; transform:none}
+/* le terminal de paiement : la carte, puis le code PIN du client (quatre points), puis « ✔ Payé » */
+.m3-cpt-tpe{width:72px; height:98px; gap:3px}
+.m3-cpt-code{font:700 12px var(--mono); letter-spacing:.14em; color:#9ff0c9}
+.m3-sc-comptoir.paie:not(.encaisse) .m3-cpt-tpe b{opacity:0}
+/* la camionnette prend le temps de rouler jusqu'au client */
+.m3-livre-route .kit-camion{transition:left 2.4s cubic-bezier(.3,.7,.4,1)}
+@media (max-width:640px){ .m3-eph{width:190px; height:210px} .m3-eph-jour{font-size:78px} }
+@keyframes m3-tombe-v41{from{opacity:0; transform:translateY(-120px) rotate(calc(var(--k, 0) * 5deg - 6deg))} to{opacity:1; transform:rotate(calc(var(--k, 0) * 2deg - 3deg))}}
+/* PC « sans animations » (Windows : effets d'animation désactivés) : le camion arrive pour de bon et les films gardent leurs gestes ;
+   ces sélecteurs, plus précis, l'emportent sur la règle « tout sans animation » de la page (*{animation:none !important; transition:none !important}) */
+@media (prefers-reduced-motion:reduce){
+  #main .m3-livraison.kit-route .kit-camion{animation:kit-camion 2.8s cubic-bezier(.15,.75,.25,1) both !important}
+  #main .m3-livraison.kit-route .kit-camion .roue{animation:kit-roue .5s linear 5.6 !important}
+  #main .m3-livraison.kit-route.attend .kit-camion, #main .m3-livraison.kit-route.attend .kit-camion *{animation-play-state:paused !important}
+  #main .m3-livraison.kit-route.kit-deja-vu .kit-camion, #main .m3-livraison.kit-route.kit-deja-vu .kit-camion .roue{animation:none !important}
+  .cpt-film .m3-sc{animation:m3-sc-entre .35s ease-out both !important}
+  .cpt-film .m3-flyer{transition:transform .45s cubic-bezier(.3,1.5,.5,1), opacity .3s !important}
+  .cpt-film .m3-fl-vole.dedans{animation:m3-fl-glisse .55s cubic-bezier(.5,0,.3,1) forwards !important}
+  .cpt-film .m3-post{transition:opacity .35s, transform .4s cubic-bezier(.3,1.4,.5,1) !important}
+  .cpt-film .m3-notif{transition:opacity .3s, transform .35s cubic-bezier(.3,1.5,.5,1) !important}
+  .cpt-film .m3-cpt-client{transition:left .6s cubic-bezier(.3,.9,.4,1) !important}
+  .cpt-film .m3-cpt-bulle{transition:opacity .25s, transform .35s cubic-bezier(.3,1.6,.5,1) !important}
+  .cpt-film .m3-cpt-tiroir{transition:bottom .25s !important}
+  .cpt-film .m3-cpt-tpe b{transition:opacity .2s !important}
+  .cpt-film .m3-sc-comptoir.paie .m3-cpt-carte{animation:m3-carte .35s ease-out !important}
+  .cpt-film .m3-lettre.tombe{animation:m3-tombe-v41 .5s cubic-bezier(.3,1.3,.5,1) forwards !important}
+  .cpt-film .m3-livre-route .kit-camion{transition:left 2.4s cubic-bezier(.3,.7,.4,1) !important}
+  .cpt-film .m3-livre-ok{transition:opacity .2s, transform .25s cubic-bezier(.3,1.6,.5,1) !important}
+  .cpt-film .m3-env{transition:transform .6s cubic-bezier(.5,0,.75,0), opacity .5s ease-in !important}
+  .cpt-film .m3-env-rabat{transition:transform .3s !important}
+  .cpt-film .m3-env-facture{transition:top .45s cubic-bezier(.5,0,.3,1) !important}
+  .cpt-film .m3-sc-ok{transition:opacity .3s, transform .4s cubic-bezier(.3,1.6,.5,1) !important}
+  .cpt-film .m3-fc-feuille{transition:transform .55s cubic-bezier(.5,0,.3,1), opacity .45s ease-in !important}
+  .cpt-film .m3-sc-cal .m3-eph-page.arrache{animation:m3-eph-arrache .46s cubic-bezier(.5,0,.8,.6) forwards !important}
+  .cpt-film .m3-eph-fin{transition:opacity .4s, transform .4s !important}
+}
 </style>
 </head>
 <body>
@@ -2633,7 +2707,7 @@ const CLASSEUR = (() => {
   const dLong = (s) => s ? deIso(s).toLocaleDateString("fr-BE", { weekday:"long", day:"numeric", month:"long" }) : "";
   const hashC = (s) => { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
   const TVA = 0.21, ESC = 0.02, J_COMPTANT = 8, J_CREDIT = 30;
-  const condTxt = (c) => c === "comptant" ? `au comptant : paiement dans les ${J_COMPTANT} jours après réception de la facture, escompte de ${Math.round(ESC * 100)} %` : `à ${J_CREDIT} jours date de facture`;
+  const condTxt = (c) => c === "comptant" ? `au comptant : paiement dans les ${J_COMPTANT} jours après réception de la facture, escompte ferme de ${Math.round(ESC * 100)} %` : `à ${J_CREDIT} jours date de facture`;
   const ICONES = { offre:"📨", bc:"📝", bl:"📦", facture:"🧾", nc:"↩️", fc:"➕", extrait:"🏦", devis:"📋", fv:"🧾", ticket:"🧾", caisse:"💶" };
   const NOMS_BIENS = { mobilier:"Le mobilier", caisse:"La caisse enregistreuse", ordinateur:"L'ordinateur" };
 
@@ -2646,7 +2720,7 @@ const CLASSEUR = (() => {
   function totaux(d, err){
     const T = [["Total des articles", d.brut, "sub"]], e = (k) => err === k ? " err" : "";
     if (d.remisePct || err === "remise") T.push([`− Remise ${d.remisePct || 0}${NB}%`, -d.remise, "sub" + e("remise")], ["= Net commercial", d.netCommercial, "sub"]);
-    if (d.cond === "comptant") T.push([`− Escompte ${Math.round(ESC * 100)}${NB}% (paiement dans les ${J_COMPTANT} jours)`, -d.escompte, "sub"], ["= Net HTVA", d.netHTVA, "sub"]);
+    if (d.cond === "comptant") T.push([`− Escompte ferme ${Math.round(ESC * 100)}${NB}% (paiement dans les ${J_COMPTANT} jours)`, -d.escompte, "sub"], ["= Net HTVA", d.netHTVA, "sub"]);
     T.push(["+ Frais de port", d.livraison, "sub" + e("livraison"), d.livraison ? null : "offerts"], ["= Montant taxable", d.totalHT, "b"], [`TVA ${d.tauxTva || 21}${NB}%`, d.tva, "sub" + e("tva")], ["Total à payer (TVAC)", d.totalTTC, "tot"]);
     return T;
   }
@@ -2897,6 +2971,36 @@ function dossierImpression(){
         ${P.map(x => `<tr><td>${esc(dateCourteIso(x.dateISO))}</td><td>${esc(x.titre)}</td><td>${esc(x.numero || "")}</td><td>${esc(x.tiers || "")}</td><td class="n">${x.montant == null ? "–" : x.montant < 0 ? "− " + euro(-x.montant) : euro(x.montant)}</td></tr>`).join("")}</tbody></table></div>
     </div></div>`;
 }
+
+// ======================================================================
+//  V4.1 (30/10/2026, demande du professeur : « les mêmes modifications que la mission 2 ») : le code PIN avant les virements
+// ======================================================================
+/** Les virements que l'entreprise exécute dans la semaine w : factures du grossiste et de la mission 2 arrivées à échéance (« Virement à … »).
+ *  Le loyer et la mensualité (ordres permanents), l'énergie, le télécom et les assurances (domiciliations) partent seuls : pas de code. */
+const virementsSemaine = (w) => { try { return SIM().semaines[w - 1].lignes.filter(l => l.m < 0 && /^Virement à /.test(l.t)); } catch(e) { return []; } };
+const PIN_SEMAINE = {};                                                   // le code tapé, gardé le temps de la visite (jamais enregistré)
+const codePinSemaine = (w) => String(hash((S.eleve.email || "") + "|pin|m3-s" + w) % 9000 + 1000);
+/** La semaine peut se clôturer : pas de virement à confirmer, ou le bon code PIN (fictif, écrit sous le champ) a été tapé. */
+const pinSemaineOK = (w) => !virementsSemaine(w).length || PIN_SEMAINE[w] === codePinSemaine(w);
+const etatPinSemaine = (v, ok) => ok ? "✔ Code correct : tes virements sont confirmés, tu peux clôturer la semaine." : v.length === 4 ? "✘ Code incorrect : recopie le code écrit juste en dessous." : "";
+function zonePinSemaine(w){
+  const V = virementsSemaine(w); if (!V.length) return "";
+  const code = codePinSemaine(w), v = PIN_SEMAINE[w] || "", ok = v === code, total = r2(V.reduce((s, l) => s - l.m, 0)), un = V.length === 1;
+  return `<div class="card pin-semaine" style="margin-top:16px"><h3>🔐 ${un ? "Ton virement" : "Tes virements"} de la semaine</h3>
+    <p class="help" style="margin:0 0 8px">${un ? "Cette facture arrive" : "Ces factures arrivent"} à échéance : tu ${un ? "la" : "les"} paies par virement, depuis l'application de ta banque. Le loyer et la mensualité (ordres permanents), l'énergie, le télécom et les assurances (domiciliations) partent seuls.</p>
+    <table class="pin-liste"><tbody>${V.map(l => `<tr><td>${esc(l.t)}</td><td class="n">${euro(-l.m)}</td></tr>`).join("")}${un ? "" : `<tr class="tot"><td>Total des virements</td><td class="n">${euro(total)}</td></tr>`}</tbody></table>
+    <div class="pin-zone ${ok ? "ok" : v.length === 4 ? "faux" : ""}"><label class="pin-titre" for="pin3-${w}">Pour confirmer ${un ? "le virement" : "les virements"}, tape le <b>code PIN</b> de la carte bancaire de ton entreprise</label>
+      <input class="pin-champ" id="pin3-${w}" data-pin3="${w}" type="text" inputmode="numeric" autocomplete="off" maxlength="4" value="${esc(v)}" placeholder="• • • •" aria-describedby="pin3-aide-${w}">
+      <p class="pin-aide" id="pin3-aide-${w}">Code PIN de ta carte (fictif, pour le jeu) : <b>${code.split("").join(" ")}</b></p>
+      <p class="pin-etat" aria-live="polite">${etatPinSemaine(v, ok)}</p></div></div>`;
+}
+document.addEventListener("input", (e) => {
+  const el = e.target; if (!el || !el.matches || !el.matches("[data-pin3]")) return;
+  const w = +el.getAttribute("data-pin3"), v = el.value.replace(/\D/g, "").slice(0, 4); if (v !== el.value) el.value = v;
+  PIN_SEMAINE[w] = v; const ok = v === codePinSemaine(w), z = el.closest(".pin-zone");
+  if (z){ z.classList.toggle("ok", ok); z.classList.toggle("faux", !ok && v.length === 4); const et = z.querySelector(".pin-etat"); if (et) et.textContent = etatPinSemaine(v, ok); }
+  refreshLive();                                                          // le bouton « Clôturer » suit VALID3, qui demande le bon code
+});
 // ======================================================================
 //  ÉCRANS
 // ======================================================================
@@ -2986,7 +3090,7 @@ R.s1 = () => { const c = march().client, a = artClient(), d = S.devis, stockApre
         <div style="margin-top:12px">${devisDoc()}</div><div class="nav" style="margin-top:12px"><span class="help">Tentative ${d.tentatives + 1} sur 2${d.cond ? "" : " · choisis d'abord les conditions de paiement"}</span><button class="btn btn-main" data-act="devis" ${d.cond ? "" : "disabled"}>Envoyer le devis</button></div>`}
       ${devisAccepte() ? `<div class="note ok"><span class="i">✅</span><div><b>Commande acceptée : ${esc(qteTxt(qteClient(), a))} à ${euro(devisMontants().pu)} HT${d.remise ? `, remise ${d.remise} %` : ""}, soit ${euro(devisHT())} HT.</b> Livraison en semaine 3, paiement ${esc(condTxt(d.cond))}${d.cond === "comptant" ? " : le client paiera en semaine 4, escompte déduit" : " : la créance restera ouverte après la fin du mois"}. Ces articles sont mis de côté dans ta réserve : la boutique ne les vendra pas.</div></div>
         ${besoin > 0 ? (d.complement ? `<div class="note gold"><span class="i">📦</span><div>Commande complémentaire passée chez ${esc(march().fournisseur.nom)} : ${esc(qteTxt(d.complement.qte, a))}, ${euro(d.complement.facture.totalTTC)} TVAC à ${DELAI_CLIENT} jours. Livrée le ${esc(jourLongIso(d.complement.facture.dateISO))}, en début de semaine 2.</div></div>` : `<div class="note warn"><span class="i">⚠️</span><div><b>Stock insuffisant.</b> Après cette semaine, il te reste ${stockApres} ${esc(a.unite)}${stockApres > 1 ? "s" : ""} ; il t'en faut ${qteClient()} pour le client plus environ ${besoin - qteClient() + stockApres} pour la boutique. Commande complémentaire de <b>${besoin}</b> unités : ${euro(factureAchat([0,1,2].map(i => i === iStrat() ? besoin : 0), "compl", dateComplement()).totalTTC)} TVAC à ${DELAI_CLIENT} jours${besoin * pa(iStrat()) < COND.francoDes ? ", port compris" : ""}, livrée en début de semaine 2.</div></div><div class="nav" style="margin-top:0"><span></span><button class="btn btn-ghost" data-act="complement" data-qte="${besoin}">Commander ${besoin} unités en plus</button></div>`) : `<div class="help">Ton stock suffit pour livrer le client et tenir le mois : bien planifié.</div>`}` : d.etat === "refuse" ? `<div class="note bad"><span class="i">💔</span><div><b>Client perdu.</b> Ton prix dépassait son budget deux fois de suite : il commande ailleurs. Une grosse vente en moins ce mois-ci.</div></div>` : ""}</div>${quiz("especes")}`
-    + nav(!!d.etat && complementOK, d.etat ? "Passe la commande complémentaire pour pouvoir livrer." : "Envoie ton devis au client.", {label:"Clôturer la semaine 1"}); };
+    + zonePinSemaine(1) + nav(!!d.etat && complementOK && pinSemaineOK(1), !d.etat ? "Envoie ton devis au client." : !complementOK ? "Passe la commande complémentaire pour pouvoir livrer." : "Confirme tes virements : tape le code PIN.", {label:"Clôturer la semaine 1"}); };
 
 R.s2 = () => { const a = arts()[0], libre = SIM().libre0, s = SIM().semaines[1], debits = s.lignes.filter(l => l.m < 0);
   return weekHead(2, "Les <span class='grad'>échéances</span> tombent", `${debits.length ? debits.map(l => l.t.replace(/ \(.*\)$/, "")).join(", ") + " : " : ""}la trésorerie encaisse le choc. Et un client revient mécontent.`) + coach("s2")
@@ -2994,7 +3098,7 @@ R.s2 = () => { const a = arts()[0], libre = SIM().libre0, s = SIM().semaines[1],
     <div class="card" style="margin-top:16px"><h3>😠 Un client revient avec un article défectueux : ${a.emoji} ${esc(a.cmd[0])}</h3><p class="help" style="margin:0 0 6px">Acheté ${euro(pvTTC(0))} la semaine dernière, inutilisable. Que fais-tu ?</p>
       <div class="decide">${[["rembourser","💶","Rembourser", `Tu rends ${euro(pvTTC(0))} en espèces, de la caisse. L'article part à la poubelle : la vente est annulée et son coût d'achat est perdu.`],["echanger","🔁","Échanger", libre ? `Tu donnes un article neuf : une unité sort du stock (${euro(r2(coutU(0)))}), mais le client, ravi, parle de toi : +6 % de clients jusqu'à la fin du mois.` : `Impossible : il ne te reste aucun ${esc(a.unite)} libre en stock.`],["refuser","🚫","Refuser", "Tu ne perds rien aujourd'hui… mais le client est furieux et le dit partout : −12 % de clients jusqu'à la fin du mois."]].map(o => `<button class="choice ${S.retour === o[0] ? "on" : ""}" data-retour="${o[0]}" ${o[0] === "echanger" && !libre ? 'disabled style="opacity:.45;cursor:not-allowed"' : ""}><div class="ico">${o[1]}</div><h4>${o[2]}</h4><p>${o[3]}</p></button>`).join("")}</div>
       ${S.retour ? `<div class="note" style="margin:14px 0 0"><span class="i">🎓</span><div>En Belgique, la garantie légale oblige le vendeur à réparer, remplacer ou rembourser un bien défectueux : « refuser » coûte cher en réputation… et n'est pas légal. ${S.retour === "refuser" ? "Regarde l'effet sur les ventes des semaines 3 et 4." : S.retour === "echanger" ? "Le geste coûte le prix d'achat, pas le prix de vente : c'est souvent la meilleure option." : "Correct, mais tu perds la vente entière alors qu'un échange ne t'aurait coûté que le prix d'achat. Au journal : 7000 et 4510 au débit, 5700 Caisse au crédit."}</div></div>` : ""}</div>`
-    + nav(!!S.retour, "Décide pour le client mécontent.", {label:"Clôturer la semaine 2"}); };
+    + zonePinSemaine(2) + nav(!!S.retour && pinSemaineOK(2), !S.retour ? "Décide pour le client mécontent." : "Confirme tes virements : tape le code PIN.", {label:"Clôturer la semaine 2"}); };
 
 R.s3 = () => { const b = SIM().b2b, v = S.vente, c = march().client, a = artClient();
   const exo = b ? (v.ok != null ? "" : `<div class="card" style="margin-top:14px"><h3>🧮 Rédige la facture de vente</h3><p class="help" style="margin:0 0 6px">${esc(qteTxt(b.q, a))} à ${euro(b.pu)} HT${b.remisePct ? `, remise ${b.remisePct} % sur le montant brut` : ""}, ${b.cond === "comptant" ? `escompte ${Math.round(ESCOMPTE * 100)} % (paiement au comptant, 8 jours), ` : ""}TVA ${pctTVA()} %. Calcule et saisis les trois montants (deux décimales, point ou virgule), dans l'ordre de la fiche 340 : brut − remise = net commercial ; − escompte = net HTVA ; + TVA = total à payer.</p>
@@ -3005,15 +3109,15 @@ R.s3 = () => { const b = SIM().b2b, v = S.vente, c = march().client, a = artClie
     + `<div class="grid g2" style="align-items:start"><div><h3 class="sub" style="margin-top:0">Les ventes de la semaine</h3>${ventesTable(3)}${cashChart(3)}</div><div><h3 class="sub" style="margin-top:0">Ton extrait de compte</h3>${ledger(3)}</div></div>
     ${b ? `<div class="grid g2" style="margin-top:16px;align-items:start"><div>${blClientDoc()}</div>
       <div>${v.facture ? factureVenteDoc() : `${devisCopieDoc()}<p class="help">La facture de vente, c'est toi qui la rédiges : reprends le devis accepté et calcule les totaux dans le formulaire.</p>`}${b.partielle ? `<div class="note warn"><span class="i">⚠️</span><div>Livraison partielle : ${b.q} sur ${qteClient()}, faute de stock. Le client ne paie que ce qu'il a reçu.</div></div>` : ""}${v.facture ? `<div class="note gold" style="margin-top:12px"><span class="i">📌</span><div>Rien n'est encaissé aujourd'hui : une <b>créance client</b> de ${euro(b.ttc)} apparaît à l'actif (4000). ${b.cond === "comptant" ? `Le client paiera dans les 8 jours (le ${esc(dateFrIso(b.echeanceISO))}), escompte de ${euro(b.escompte)} déjà déduit sur la facture.` : `Échéance le ${esc(dateFrIso(b.echeanceISO))}, après la fin du mois : la créance restera au bilan.`}</div></div>${bandeauEcritures("m3-ecr-s3", ecritureDoc(ecrituresDe(b.numero)[0], "L'écriture de la facture de vente (journal des ventes)"))}` : ""}</div></div>${exo}` : ""}`
-    + nav(!b || v.ok != null, "Rédige et vérifie la facture de vente.", {label:"Clôturer la semaine 3"}); };
+    + zonePinSemaine(3) + nav((!b || v.ok != null) && pinSemaineOK(3), b && v.ok == null ? "Rédige et vérifie la facture de vente." : "Confirme tes virements : tape le code PIN.", {label:"Clôturer la semaine 3"}); };
 
 R.s4 = () => { const sim = SIM(), hausse = Math.round((effetPromoCalc() - 1) * 100), reste = sim.semaines[2].stock.reduce((s, q) => s + q, 0), b = sim.b2b;
-  return weekHead(4, "Dernière semaine et <span class='grad'>encaissement</span>", `Une promotion pour finir le mois en beauté ? ${b ? (b.cond === "comptant" ? "Ton client professionnel règle sa facture, escompte déduit." : "Ton client professionnel paiera le mois prochain : sa créance reste au bilan.") : ""}${sim.semaines[3].lignes.some(l => /grossiste|Virement à/.test(l.t)) ? " Et le grossiste attend son virement." : ""}`) + coach("s4")
+  return weekHead(4, "Dernière semaine et <span class='grad'>encaissement</span>", `Une promotion pour finir le mois en beauté ? ${b ? (b.cond === "comptant" ? "Ton client professionnel règle sa facture, escompte déduit." : "Ton client professionnel paiera le mois prochain : sa créance reste au bilan.") : ""}${sim.semaines[3].lignes.some(l => /grossiste|Virement à/.test(l.t)) ? " Et le grossiste attend son virement : confirme-le avec ton code PIN." : ""}`) + coach("s4")
     + `<div class="card" style="margin-bottom:16px"><h3>📣 Promotion de fin de mois sur toute la boutique ?</h3><p class="help" style="margin:0 0 6px">−15 % sur tous les prix affichés pendant la semaine 4 (${arts().map((a, i) => `${a.emoji} ${euro(pvTTC(i))} → ${euro(r2(pvTTC(i) * (1 - PROMO.remise)))}`).join(" · ")}). Chez toi, environ +${hausse} % de clients : la promotion attire d'autant plus que ta clientèle est sensible au prix et que ton magasin est peu fréquenté. Il te reste ${reste} article${reste > 1 ? "s" : ""} en stock.${PRODUITS_FRAIS.includes(M1.typeId) ? " Produits frais : une partie de ce qui reste en fin de mois s'abîme et se jette." : ""}</p>
       <div class="grid g2"><button class="choice ${S.promo === true ? "on" : ""}" data-promo="1"><div class="ico">🔥</div><h4>Oui, je lance la promo</h4><p>Plus de clients, moins de marge par vente. Elle ne paie que s'il te reste assez de stock : sinon, tu brades sans vendre plus.</p></button><button class="choice ${S.promo === false ? "on" : ""}" data-promo="0"><div class="ico">🧘</div><h4>Non, je garde mes prix</h4><p>Marge intacte, volumes normaux. Le stock restant se vendra le mois prochain.</p></button></div></div>
     <div class="grid g2" style="align-items:start"><div><h3 class="sub" style="margin-top:0">Les ventes de la semaine${S.promo === null ? " (sans promo)" : ""}</h3>${ventesTable(4)}${cashChart(4)}</div><div><h3 class="sub" style="margin-top:0">Ton extrait de compte</h3>${ledger(4)}</div></div>
     ${S.promo !== null ? `<div class="stat3" style="margin-top:14px"><div class="s"><span>Chiffre d'affaires du mois (HT)</span><b>${euro0(sim.ventesHT)}</b></div><div class="s"><span>Banque en fin de mois</span><b style="color:var(--mint)">${euro0(sim.banque)}</b></div><div class="s"><span>Stock restant</span><b>${sim.stock.reduce((s, q) => s + q, 0)} articles · ${euro0(sim.stockVal)}</b></div></div>` : ""}`
-    + nav(S.promo !== null, "Décide pour la promotion.", {label:"Clôturer le mois"}); };
+    + zonePinSemaine(4) + nav(S.promo !== null && pinSemaineOK(4), S.promo === null ? "Décide pour la promotion." : "Confirme tes virements : tape le code PIN.", {label:"Clôturer le mois"}); };
 /** La hausse de clients qu'apporterait la promotion, calculée par le moteur lui-même (même formule que les ventes). */
 function effetPromoCalc(){ const sauve = S.promo; S.promo = true; try { return [0,1,2].reduce((s, i) => s + effetPromo(i, 4), 0) / 3; } finally { S.promo = sauve; } }
 
@@ -3137,8 +3241,8 @@ async function controlerEnFond(){ if (pingAutorise() && !(await verifierOuvert()
 const VALID3 = { stock:() => S.qtes.every(q => q != null && q >= 0) && S.qtes.some(q => q > 0) && S.pub != null,
   reception:() => !!S.recep && S.signBL.trim().length >= 3 && !!S.checks[0] && (S.recep === "accepter" ? S.checks.every(Boolean) : S.reserve.trim().length >= 5),
   prix:() => S.prix.every(p => p != null),
-  s1:() => !!S.devis.etat && (!devisAccepte() || !!S.devis.complement || besoinComplement() === 0),
-  s2:() => !!S.retour && (S.retour !== "echanger" || SIM().echange), s3:() => !SIM().b2b || S.vente.ok != null, s4:() => S.promo !== null, journal:() => true, resultat:() => true, bilan:() => bilanData(4).equilibre };
+  s1:() => !!S.devis.etat && (!devisAccepte() || !!S.devis.complement || besoinComplement() === 0) && pinSemaineOK(1),
+  s2:() => !!S.retour && (S.retour !== "echanger" || SIM().echange) && pinSemaineOK(2), s3:() => (!SIM().b2b || S.vente.ok != null) && pinSemaineOK(3), s4:() => S.promo !== null && pinSemaineOK(4), journal:() => true, resultat:() => true, bilan:() => bilanData(4).equilibre };
 const MOTS_ETAPE = { stock:["grossiste","stock","franco","publicite"], reception:["reserve","noteCredit"], prix:["marge","coef","prixTTC","tauxMarque"], s1:["devis","caisse","ca"], s2:["chargesFixes","extrait"], s3:["factureVente","creance","escompteAccorde","tvaCollectee"], s4:["cogs"], journal:["pieceJustificative","journal"], resultat:["compteResultats","tresoVsResultat","perissable"], bilan:[] };
 function suivant(){
   const st = STEPS3[S.step], key = st.key; if (!VALID3[key] || !VALID3[key]()) return;
@@ -3989,6 +4093,8 @@ function vitrineSVG(cfg, uid){
 // v1.3 (27/10/2026) : film() (scène de 3 s au plus sur tout l'écran, passée d'un clic, comme aux 3P), cascade(), confettis(),
 // xpSaute(), vivant() (cartes qui réagissent, reflets, notifications façon téléphone), couperFilms() pour les bancs d'essai.
 // v1.4 (30/10/2026) : creditsImages() pose une ligne visible au bas de la page (comme aux 3P) ; la liste ajoute les photos libres de la page.
+// v1.5 (30/10/2026) : film({ long:true }) peut durer jusqu'à 9 s (scènes plus réalistes de la mission 2) ; sans « long », toujours 3 s au plus ;
+// film({ toujours:true }) se joue en entier même quand l'ordinateur demande moins d'animations.
 const COMPTA = (() => {
   const X = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
@@ -4225,7 +4331,10 @@ const COMPTA = (() => {
   function film(o){
     if (filmsCoupes || !o || !o.html || !premiereFois("film-" + o.cle)) return Promise.resolve(false);
     if (filmEnCours) filmEnCours();
-    const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches, ms = reduit ? 700 : Math.min(3000, o.duree || 2400);
+    // v1.5 : un film « long » (o.long, demande du professeur du 30/10/2026 : scènes plus réalistes, comme aux 3P) peut durer jusqu'à 9 s ; les autres, 3 s au plus.
+    // Un film « toujours » (o.toujours) se joue en entier même si l'ordinateur demande moins d'animations (Windows : effets d'animation désactivés) :
+    // ses étapes avancent au rythme prévu, seuls les fondus et glissements disparaissent.
+    const reduit = !o.toujours && matchMedia("(prefers-reduced-motion: reduce)").matches, ms = reduit ? 700 : Math.min(o.long ? 9000 : 3000, o.duree || 2400);
     const el = document.createElement("div");
     el.className = "cpt-film" + (reduit ? " cpt-film-calme" : ""); el.setAttribute("aria-hidden", "true");
     el.innerHTML = `<div class="cpt-film-boite">${o.html}${o.texte ? `<p class="cpt-film-texte">${X(o.texte)}</p>` : ""}</div><span class="cpt-film-passer">Clique pour passer</span><i class="cpt-film-temps" style="animation-duration:${ms}ms"></i>`;
@@ -4357,7 +4466,7 @@ const DECOR = (() => {
   // ─── Réception : le camion du grossiste et ses colis ; le bon de livraison signé reçoit le tampon « Reçu » ───
   function reception(main){
     const f = S.commande, fo = lire(() => march().fournisseur, null); if (!f || !fo) return;
-    const papiers = qa(".grid .paper", main), bl = papiers[0];
+    const papiers = qa(".grid .paper", main), bl = papiers[0], neuve = !q('[data-decor="m3-livraison"]', main);
     const route = poser(q(".coach", main), "afterend", "m3-livraison", () => {
       const nb = (texte(bl).match(/Colis\s*:\s*(\d+)/) || [])[1], dest = entreprise();      // le nombre de colis affiché sur le bon
       const artDuColis = (k) => { const l = f.lignes[k % f.lignes.length]; return l ? lire(() => arts().findIndex(a => a.ref === l.ref), -1) : -1; };   // V4 : la photo de ce que contient le colis
@@ -4367,7 +4476,10 @@ const DECOR = (() => {
       return `<div class="kit-route m3-livraison" data-anim="m3-livraison" aria-hidden="true"><div class="m3-facade cpt-cache-mobile"><span class="m3-facade-nom">${X(dest)}</span><span class="m3-facade-vitre"></span><span class="m3-facade-porte"></span></div>
         ${KIT.camion({ nom:fo.nom, sousTitre:"LIVRAISON" })}<div class="m3-pile">${colis}</div></div>`;
     });
-    if (route) sonUneFois("m3-camion", "camion");
+    // V4.1 : la première fois, le camion attend, garé hors de la rue, la fin des films (publicité, temps qui passe), puis il arrive
+    if (route && neuve && COMPTA.premiereFois("m3-camion-attend")){ camionAttend = true; route.classList.add("attend"); }
+    else if (route && camionAttend) route.classList.add("attend");
+    else if (route) sonUneFois("m3-camion", "camion");
     // Le tampon a sa place dès le départ (invisible) : la ligne de signature ne bouge pas pendant que l'élève signe.
     const tampon = poser(bl && q(".sigline", bl), "afterbegin", "m3-recu", `<span class="tampon vert m3-recu m3-attente" aria-hidden="true">Reçu</span>`);
     if (tampon){
@@ -4466,7 +4578,8 @@ const DECOR = (() => {
     poser(b, "beforeend", "m3-bilan-pied", () => `<div class="m3-bilan-pied" aria-hidden="true">${COMPTA.balance(d.equilibre, { couleurTexte:"#14284b" })}<span class="tampon${d.equilibre ? " vert" : ""} frappe" data-anim="m3-bilan-tampon">${d.equilibre ? "Actif = Passif" : "Déséquilibré"}</span>${COMPTA.mention()}</div>`);
     if (avecSon) sonUneFois("m3-bilan-tampon", "tampon");
     // V2 : le surligneur passe une fois sur ce que le mois a changé : le stock, la créance, la TVA, le résultat, la banque
-    if (COMPTA.premiereFois("m3-fluo-" + ecran())) qa(".l", b).forEach(l => { if (/^(Stock|Créance|TVA|Résultat|Banque)/.test(texte(q(".k", l) || l))) l.classList.add("m3-fluo"); });
+    // V4.1 : les lignes commencent par le numéro de compte et portent les noms du plan comptable (« 3400Marchandises (stock) », « 4000Clients », « 5700Caisse »)
+    if (COMPTA.premiereFois("m3-fluo-" + ecran())) qa(".l", b).forEach(l => { if (/^(\d{4}\s*)?(Marchandises|Stock|Clients|Créance|TVA|Résultat|Banque|Caisse)/.test(texte(q(".k", l) || l))) l.classList.add("m3-fluo"); });
   }
   /** V2 : l'avis du client mécontent, selon la décision (décor : rien n'est calculé). */
   const AVIS = { echanger:["★★★★★", "Échange sans discuter et super accueil. Je reviendrai !"], rembourser:["★★★★☆", "Remboursée tout de suite. Correct."], refuser:["★☆☆☆☆", "Ils refusent de reprendre un article défectueux. À éviter !"] };
@@ -4531,14 +4644,16 @@ const DECOR = (() => {
     qa("#side .equip > div").forEach(d => { if (d.classList.contains("cur")) d.classList.add("m3-boite-vide"); else d.classList.add("cpt-carton", "m3-boite"); });
   }
 
-  // ─── V2 : petits films (3 s au plus, comme aux 3P et en mission 2), au passage d'un écran à l'autre, par-dessus l'écran suivant ───
+  // ─── V2 : petits films (comme aux 3P et en mission 2), au passage d'un écran à l'autre, par-dessus l'écran suivant ───
+  // V4.1 (demande du professeur : « les mêmes modifications que la mission 2 ») : chaque film se joue en entier, même sur un ordinateur
+  // qui demande moins d'animations (option « toujours » du kit v1.5), et prend le temps de montrer chaque geste (4 à 6 s, option « long »).
   const heureCourte = () => new Date().toLocaleTimeString("fr-BE", { hour:"2-digit", minute:"2-digit" });
   /** La publicité d'ouverture : les flyers dans les boîtes aux lettres, ou la publication sponsorisée sur les réseaux sociaux. */
   function filmPub(){
     const p = lire(() => PUBS.find(x => x.id === S.pub), null); if (!p || !p.coutHT) return null;
     const nom = entreprise(), adr = lire(() => V1(adresse1) + ", " + V1(adresse2), "");
     const flyer = `<div class="m3-flyer"><span class="m3-flyer-sym">${X(lire(() => M1.symbole, "★"))}</span><b>${X(nom)}</b><span class="m3-flyer-ouv">Ouverture !</span><small>${X(adr)}</small></div>`;
-    if (p.id === "reseaux") return { duree:2800, texte:"Ta publicité tourne sur les réseaux sociaux…",
+    if (p.id === "reseaux") return { toujours:true, long:true, duree:5000, texte:"Ta publicité tourne sur les réseaux sociaux…",
       html:`<div class="m3-sc m3-sc-reseaux"><div class="phone m3-sc-phone"><div class="tel-barre"><span>${X(heureCourte())}</span><span>📶 🔋</span></div>
         <div class="m3-post"><div class="m3-post-tete"><span class="m3-post-av">${X(lire(() => M1.symbole, "★"))}</span><span><b>${X(nom)}</b><small>Sponsorisé · ${X(lire(() => V1(adresse2), ""))}</small></span></div>${flyer}
         <div class="m3-post-bas"><span>❤ <b class="m3-likes">0</b></span><span>💬 <b class="m3-com">0</b></span><span>↗ Partager</span></div></div>
@@ -4548,27 +4663,31 @@ const DECOR = (() => {
         setTimeout(() => clearInterval(t), ms);
         COMPTA.etapes(el, ms, [[.04, () => el.querySelector(".m3-post").classList.add("vu")], [.55, () => { el.querySelector(".m3-notif").classList.add("vu"); COMPTA.son("notif"); }]]); },
       final(el){ el.querySelector(".m3-post").classList.add("vu"); el.querySelector(".m3-notif").classList.add("vu"); el.querySelector(".m3-likes").textContent = "248"; el.querySelector(".m3-com").textContent = "14"; } };
-    return { duree:2600, texte:"2\u202f000 flyers dans les boîtes aux lettres du quartier…",
+    return { toujours:true, long:true, duree:4500, texte:"2\u202f000 flyers dans les boîtes aux lettres du quartier…",
       html:`<div class="m3-sc m3-sc-flyers">${flyer}<div class="m3-maisons">${[0, 1, 2].map(k => `<div class="m3-maison"><span class="m3-maison-toit"></span><span class="m3-maison-fen"></span><span class="m3-maison-porte"></span><span class="m3-bal-mini"><i class="m3-fl-vole"></i></span></div>`).join("")}</div></div>`,
       jouer(el, ms){ const v = el.querySelectorAll(".m3-fl-vole"); COMPTA.etapes(el, ms, [[.08, () => el.querySelector(".m3-flyer").classList.add("vu")]].concat([0, 1, 2].map(k => [.34 + k * .18, () => { v[k].classList.add("dedans"); COMPTA.son("papier"); }]))); },
       final(el){ el.querySelector(".m3-flyer").classList.add("vu"); el.querySelectorAll(".m3-fl-vole").forEach(x => x.classList.add("dedans")); } };
   }
-  /** Semaine 1 : la boutique ouvre ; un client entre au comptoir, paie, la caisse sonne (chiffres de la semaine 1, lus dans la page). */
+  /** Semaine 1 : la boutique ouvre ; un client entre au comptoir, paie, la caisse sonne (chiffres de la semaine 1, lus dans la page).
+   *  V4.1 : le client paie par carte et tape son code PIN sur le terminal (quatre points), comme dans un vrai magasin. */
   function filmOuverture(){
     const s = lire(() => SIM().semaines[0], null); if (!s) return null;
     const v = s.ventes.slice().sort((x, y) => y.q - x.q)[0], a = v && v.q ? arts()[v.i] : null, n = s.ventes.reduce((t, x) => t + x.q, 0);
-    return { duree:2800, texte:`Ouverture ! ${n} article${n > 1 ? "s" : ""} vendu${n > 1 ? "s" : ""} la première semaine`,
+    return { toujours:true, long:true, duree:6000, texte:`Ouverture ! ${n} article${n > 1 ? "s" : ""} vendu${n > 1 ? "s" : ""} la première semaine`,
       html:`<div class="m3-sc m3-sc-comptoir"><div class="m3-cpt-fond"><span class="m3-cpt-pancarte">Ouvert</span><span class="m3-cpt-etagere">${arts().map(x => X(x.emoji)).join(" ")}</span></div>
         <span class="m3-cpt-client">🧑</span><div class="m3-cpt-bulle">${a ? `Bonjour ! Vous avez des ${X(a.cmd[1])} ?` : "Bonjour !"}</div>
-        <div class="m3-cpt-comptoir"><div class="m3-cpt-caisse"><span class="m3-cpt-ecran"><small>Semaine 1</small>${X(euro(s.caTTC))}</span><span class="m3-cpt-tiroir"></span></div><div class="m3-cpt-tpe"><span class="m3-cpt-carte">💳</span><b>✔ Payé</b></div></div></div>`,
-      jouer(el, ms){ const sc = el.querySelector(".m3-sc-comptoir"); COMPTA.etapes(el, ms, [[.04, () => { sc.classList.add("entre"); COMPTA.son("porte"); }], [.3, () => sc.classList.add("parle")], [.58, () => { sc.classList.add("paie"); COMPTA.son("bip"); }], [.74, () => { sc.classList.add("encaisse"); COMPTA.son("caisse"); }]]); },
-      final(el){ el.querySelector(".m3-sc-comptoir").classList.add("entre", "parle", "paie", "encaisse"); } };
+        <div class="m3-cpt-comptoir"><div class="m3-cpt-caisse"><span class="m3-cpt-ecran"><small>Semaine 1</small>${X(euro(s.caTTC))}</span><span class="m3-cpt-tiroir"></span></div><div class="m3-cpt-tpe"><span class="m3-cpt-carte">💳</span><span class="m3-cpt-code">○○○○</span><b>✔ Payé</b></div></div></div>`,
+      jouer(el, ms){ const sc = el.querySelector(".m3-sc-comptoir"), code = el.querySelector(".m3-cpt-code");
+        const taper = (k) => [.5 + k * .055, () => { code.textContent = "●".repeat(k + 1) + "○".repeat(3 - k); COMPTA.son("touche"); }];
+        COMPTA.etapes(el, ms, [[.04, () => { sc.classList.add("entre"); COMPTA.son("porte"); }], [.24, () => sc.classList.add("parle")], [.44, () => { sc.classList.add("paie"); COMPTA.son("bip"); }]]
+          .concat([0, 1, 2, 3].map(taper), [[.76, () => { sc.classList.add("encaisse"); COMPTA.son("caisse"); }]])); },
+      final(el){ el.querySelector(".m3-sc-comptoir").classList.add("entre", "parle", "paie", "encaisse"); el.querySelector(".m3-cpt-code").textContent = "●●●●"; } };
   }
   /** Semaine 2 : le courrier des échéances tombe de la boîte aux lettres (loyer, factures de la mission 2, assurances). */
   function filmCourrier(){
     const fs = lire(() => M2.factures, []), loy = lire(() => V1(loyer), 0);
     const lettres = [["🏠", "Loyer du mois", euro(loy)]].concat(fs.slice(0, 3).map(f => ["🏢", "Facture " + f.fournisseur, euro(f.montant)]), [["🔌", "Assurances, énergie", euro(CHARGES_AUTRES)]]);
-    return { duree:2600, texte:"Semaine 2 : le courrier des échéances…",
+    return { toujours:true, long:true, duree:4500, texte:"Semaine 2 : le courrier des échéances…",
       html:`<div class="m3-sc m3-sc-courrier"><div class="m3-bal"><span class="m3-bal-nom">${X(entreprise())}</span><span class="m3-bal-fente"></span></div>
         <div class="m3-lettres">${lettres.map((l, k) => `<div class="m3-lettre" style="--k:${k}"><span>${l[0]}</span><b>${X(l[1])}</b><small>${X(l[2])}</small></div>`).join("")}</div></div>`,
       jouer(el, ms){ const ls = [...el.querySelectorAll(".m3-lettre")]; COMPTA.etapes(el, ms, ls.map((x, k) => [.1 + k * .17, () => { x.classList.add("tombe"); COMPTA.son("papier"); }])); },
@@ -4577,7 +4696,7 @@ const DECOR = (() => {
   /** Semaine 3 : la camionnette livre le client professionnel (si le devis a été accepté). */
   function filmLivraison(){
     const b = lire(() => SIM().b2b, null), c = lire(() => march().client, null); if (!b || !c) return null;
-    return { duree:2600, texte:`Livraison : ${qteTxt(b.q, artClient())} pour ${c.nom}`,
+    return { toujours:true, long:true, duree:4600, texte:`Livraison : ${qteTxt(b.q, artClient())} pour ${c.nom}`,
       html:`<div class="m3-sc m3-sc-livre"><div class="m3-livre-route">${KIT.camion({ nom:entreprise(), sousTitre:"LIVRAISON", couleur:lire(() => M1.couleur, "#1E2A5A") || "#1E2A5A" })}</div>
         <div class="m3-livre-client"><span class="m3-livre-av">${X(c.avatar)}</span><b>${X(c.nom)}</b><small>${X(c.rue)}, ${X(c.cp)} ${X(c.ville)}</small><span class="tampon vert m3-livre-ok">Livré</span></div></div>`,
       jouer(el, ms){ const sc = el.querySelector(".m3-sc-livre"); COMPTA.etapes(el, ms, [[.02, () => { sc.classList.add("roule"); COMPTA.son("camion"); }], [.7, () => { sc.classList.add("livre"); COMPTA.son("tampon"); }]]); },
@@ -4586,7 +4705,7 @@ const DECOR = (() => {
   /** Semaine 4 : la facture de vente part chez le client, sous enveloppe : de l'argent à recevoir. */
   function filmFacture(){
     const f = S.vente && S.vente.facture, c = lire(() => march().client, null); if (!f || !c) return null;
-    return { duree:2200, texte:`Facture ${f.numero} envoyée : ${euro(f.ttc)} à recevoir`,
+    return { toujours:true, long:true, duree:3600, texte:`Facture ${f.numero} envoyée : ${euro(f.ttc)} à recevoir`,
       html:`<div class="m3-sc m3-sc-enveloppe"><div class="m3-env"><div class="m3-env-facture"><b>Facture</b><small>${X(f.numero)}</small><span>${X(c.nom)}</span><span class="m3-env-montant">${X(euro(f.ttc))}</span></div><span class="m3-env-corps"></span><span class="m3-env-rabat"></span></div><div class="m3-sc-ok">✔ Envoyée</div></div>`,
       jouer(el, ms){ const sc = el.querySelector(".m3-sc-enveloppe"); COMPTA.etapes(el, ms, [[.22, () => { sc.classList.add("glisse"); COMPTA.son("papier"); }], [.48, () => sc.classList.add("ferme")], [.64, () => { sc.classList.add("part"); COMPTA.son("envoi"); }]]); },
       final(el){ el.querySelector(".m3-sc-enveloppe").classList.add("glisse", "ferme", "part"); } };
@@ -4595,20 +4714,55 @@ const DECOR = (() => {
   function filmClasseur(){
     const P = lire(() => CLASSEUR.pieces().filter(p => p.m === 3), []); if (!P.length) return null;
     const feuilles = P.slice(0, 6).map((p, k) => `<div class="m3-fc-feuille" style="--k:${k}"><b>${X(p.titre)}</b><small>${X(p.numero || "")}</small></div>`).join("");
-    return { duree:2400, texte:`${P.length} documents du mois rejoignent le classeur`,
+    return { toujours:true, long:true, duree:4200, texte:`${P.length} documents du mois rejoignent le classeur`,
       html:`<div class="m3-sc m3-sc-classeur"><div class="m3-fc-pile">${feuilles}</div><div class="m3-fc-classeur">${COMPTA.classeur({ titre:entreprise(), sous:lire(() => `${cal().nom} ${cal().an}`, ""), couleur:lire(() => M1.couleur, "") || "#1e3a6e", feuilles:3 })}</div></div>`,
       jouer(el, ms){ const fs = [...el.querySelectorAll(".m3-fc-feuille")]; COMPTA.etapes(el, ms, fs.map((x, k) => [.1 + k * .12, () => { x.classList.add("range"); COMPTA.son("papier"); }])); },
       final(el){ el.querySelectorAll(".m3-fc-feuille").forEach(x => x.classList.add("range")); } };
   }
-  /** Au passage d'un écran à l'autre (pas au chargement de la page) : le film de ce qui vient de se passer. */
-  let precedent = null;
+  /** V4.1 : le temps passe, comme aux 3P : une page de l'éphéméride s'arrache pour chaque jour, du lendemain de « de » jusqu'à « a » (dates ISO). */
+  function filmCalendrier(de, a, texte, arrivee){
+    if (!de || !a || a <= de) return null;
+    const jours = []; for (let d = joursApres(deIso(de), 1); isoL(d) <= a; d = joursApres(d, 1)) jours.push(new Date(d));
+    if (!jours.length || jours.length > 21) return null;
+    const note = (d) => ferie(d) ? "Jour férié : rien ne bouge" : d.getDay() % 6 === 0 ? "Week-end : livreurs au repos" : "";
+    const page = (d, cls) => `<div class="m3-eph-page${cls ? " " + cls : ""}${ferie(d) ? " ferie" : d.getDay() % 6 === 0 ? " we" : ""}"><span class="m3-eph-mois">${X(d.toLocaleDateString("fr-BE", { month:"long", year:"numeric" }))}</span><b class="m3-eph-jour">${d.getDate()}</b><span class="m3-eph-nom">${X(d.toLocaleDateString("fr-BE", { weekday:"long" }))}</span><span class="m3-eph-note">${X(note(d))}</span></div>`;
+    const DEBUT = 700, PAS = Math.max(300, Math.min(420, Math.round(3200 / jours.length))), FIN = 1600, duree = DEBUT + jours.length * PAS + FIN;
+    return { toujours:true, long:true, duree, texte,
+      html:`<div class="m3-sc m3-sc-cal"><div class="m3-eph-titre">Le temps passe…</div><div class="m3-eph"><span class="m3-eph-anneau"></span><span class="m3-eph-anneau"></span><div class="m3-eph-pile">${page(deIso(de), "m3-eph-dessus")}</div></div>
+        <p class="m3-eph-fin">Nous sommes le <b>${X(jourLongIso(a))}</b> : ${X(arrivee)}</p></div>`,
+      jouer(el){
+        const pile = el.querySelector(".m3-eph-pile"), sc = el.querySelector(".m3-sc-cal"); let k = 0;
+        const tourner = () => { if (!pile.isConnected) return;
+          const vieux = pile.querySelector(".m3-eph-dessus");
+          pile.insertAdjacentHTML("afterbegin", page(jours[k], ""));                            // la nouvelle page se glisse sous celle qu'on arrache
+          if (vieux){ vieux.classList.remove("m3-eph-dessus"); vieux.classList.add("arrache"); setTimeout(() => vieux.remove(), 460); }
+          pile.firstElementChild.classList.add("m3-eph-dessus"); COMPTA.son("touche"); k++;
+          if (k < jours.length) setTimeout(tourner, PAS); else setTimeout(() => { if (sc.isConnected){ sc.classList.add("fini"); COMPTA.son("succes"); } }, 260); };
+        setTimeout(tourner, DEBUT);
+      },
+      final(el){ el.querySelector(".m3-eph-pile").innerHTML = page(jours[jours.length - 1], "m3-eph-dessus"); el.querySelector(".m3-sc-cal").classList.add("fini"); } };
+  }
+  /** Avant la réception : la commande du grossiste voyage (jours ouvrables de délai). */
+  const calGrossiste = () => filmCalendrier(lire(() => cal().commande, ""), lire(() => cal().livraison, ""), `Délai de livraison : ${lire(() => COND.delai, 3)} jours ouvrables…`, `${lire(() => march().fournisseur.nom, "le grossiste")} livre ta marchandise !`);
+  /** Avant la livraison au client professionnel : de la fin de la semaine 2 au jour convenu. */
+  const calClient = () => { const b = lire(() => SIM().b2b, null), c = lire(() => march().client, null); if (!b || !c) return null;
+    return filmCalendrier(lire(() => cal().semaines[1].fin, ""), b.dateISO, `${c.contact || c.nom} attend sa commande…`, `tu livres ${c.nom} !`); };
+
+  /** Au passage d'un écran à l'autre (pas au chargement de la page) : les films de ce qui vient de se passer, l'un après l'autre.
+   *  V4.1 : le camion du grossiste attend la fin des films (publicité, temps qui passe) pour entrer dans la rue. */
+  let precedent = null, camionAttend = false, filmsEnCours = false;
+  function arriveeCamion(){ if (!camionAttend) return; camionAttend = false; const r = q("#main .m3-livraison"); if (r) r.classList.remove("attend"); sonUneFois("m3-camion", "camion"); }
   function films(e){
     if (precedent === e) return;
     const avant = precedent; precedent = e;
     if (!avant || MODE !== "mission") return;
-    const f = avant === "stock" && e === "reception" ? filmPub() : avant === "prix" && e === "s1" ? filmOuverture() : avant === "s1" && e === "s2" ? filmCourrier()
-      : avant === "s2" && e === "s3" ? filmLivraison() : avant === "s3" && e === "s4" ? filmFacture() : avant === "s4" && e === "journal" ? filmClasseur() : null;
-    if (f) COMPTA.film(Object.assign({ cle:"m3-" + e }, f));
+    const L = avant === "stock" && e === "reception" ? [filmPub(), calGrossiste()] : avant === "prix" && e === "s1" ? [filmOuverture()] : avant === "s1" && e === "s2" ? [filmCourrier()]
+      : avant === "s2" && e === "s3" ? [calClient(), filmLivraison()] : avant === "s3" && e === "s4" ? [filmFacture()] : avant === "s4" && e === "journal" ? [filmClasseur()] : [];
+    const F = L.filter(Boolean).map((f, k) => Object.assign({ cle:"m3-" + e + (k ? "-" + k : "") }, f));
+    if (!F.length) return;
+    const fin = () => { filmsEnCours = false; arriveeCamion(); };
+    filmsEnCours = true;
+    F.reduce((p, f) => p.then(() => COMPTA.film(f)), Promise.resolve()).then(fin, fin);
   }
 
   function decorer(){
@@ -4631,6 +4785,7 @@ const DECOR = (() => {
       COMPTA.cascade(main, e);                                        // V2 : les blocs de l'écran arrivent l'un après l'autre (une fois)
       COMPTA.xpSaute(S.xp || 0);
       films(e);
+      if (camionAttend && !filmsEnCours) arriveeCamion();             // V4.1 : pas de film (page rechargée) : le camion arrive tout de suite
       typo(document.body);                                            // V2 : en dernier, film compris
     } catch(e) { console.warn("décor :", e); }
   }
